@@ -3,10 +3,8 @@
 #include <iostream>
 #include <cmath>
 
-float frameDuration = 0.06f;
 float speed = 2.f;
-enum State
-{
+enum State {
     idle,
     runLeft,
     runRight,
@@ -14,445 +12,622 @@ enum State
     swing
 };
 
-enum Turn
-{
+enum Turn {
     p1,
     p2
 };
 
-bool isAnyKeyPressed1()
-{
-    sf::Keyboard::Key keys[]{sf::Keyboard::Up, sf::Keyboard::Down,
-                             sf::Keyboard::Left, sf::Keyboard::Right,
-                             sf::Keyboard::Numpad0};
+class IUmpire {
+public:
+    virtual ~IUmpire() {};
 
-    for (int k = 0; k < 5; ++k)
-    {
-        if (sf::Keyboard::isKeyPressed(keys[k]))
-        {
-            return true;
+    virtual void Update(Turn loser) = 0;
+};
+
+class IBall {
+public:
+    virtual ~IBall() {};
+
+    virtual void Attach(IUmpire *umpire) = 0;
+
+//    virtual void Detach(IUmpire *umpire) = 0;
+    virtual void Notify(bool out) = 0;
+};
+
+class Player {
+private:
+    float frameDuration = .06f, speed = 2.f, vecLength;
+    int player, frame = 0, friction = .2f;
+    bool flipSprite = false;
+    sf::Clock clock;
+    sf::Vector2f playerVec = sf::Vector2f(0.f, 0.f), swingOrigin, racketSize, spriteOrigin, position;
+    sf::Sprite sprite;
+    sf::RectangleShape racket;
+    sf::Keyboard::Key up, right, down, left, swingKey;
+    sf::Keyboard::Key keyList[5];
+    State state = idle;
+    Turn turn;
+
+public:
+    Player(Turn _turn, sf::Texture *texture, std::map<std::string, sf::Keyboard::Key> keyDict) {
+        // movement will be 0->3 with 0 being up and going in a clockwise motion.
+        // swing will be 4!
+        playerVec = sf::Vector2f(0.f, 0.f);
+        up = keyDict["up"];
+        right = keyDict["right"];
+        down = keyDict["down"];
+        left = keyDict["left"];
+        swingKey = keyDict["swing"];
+        sf::Keyboard::Key keyList[5] = {up, right, down, left, swingKey};
+        turn = _turn;
+        sprite.setTexture(*texture);
+        if (_turn == p1) {
+            player = 0;
+            spriteOrigin = sf::Vector2f(16, 16);
+            racketSize = sf::Vector2f(26, 15);
+            swingOrigin = sf::Vector2f(13, 0);
+        } else {
+            player = 1;
+            spriteOrigin = sf::Vector2f(13, 18);
+            racketSize = sf::Vector2f(27, 28);
+            swingOrigin = sf::Vector2f(13, 18);
         }
-    }
-    return false;
-}
+        sprite.setOrigin(spriteOrigin);
+        racket = sf::RectangleShape(racketSize);
+        racket.setOrigin(swingOrigin);
+        racket.setPosition(sprite.getPosition());
+        racket.setFillColor(sf::Color(255, 0, 0, 100)); // To visualise the hitbox!
+        racket.setOutlineColor(sf::Color(255, 0, 0, 255));
 
-bool isAnyKeyPressed2()
-{
-    sf::Keyboard::Key keys[]{sf::Keyboard::W, sf::Keyboard::A,
-                             sf::Keyboard::S, sf::Keyboard::D,
-                             sf::Keyboard::Space};
-
-    for (int k = 0; k < 5; ++k)
-    {
-        if (sf::Keyboard::isKeyPressed(keys[k]))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-void p2Movement(sf::Sprite *sprite, State *state, sf::Clock *clock,
-                int *frame, sf::RectangleShape *racket, sf::Vector2f ballPos, bool *flipped)
-{
-    sf::Vector2f position = sprite->getPosition();
-    sf::Vector2f move = sf::Vector2f(0.f, 0.f);
-    int row = 1;
-    float length;
-
-    // Setting state and vector based on action
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space) && *state != swing)
-    {
-        sprite->setRotation(0.f);
-        *state = swing;
-        *frame = 0;
-        sprite->setTextureRect(sf::IntRect(0, 160, 32, 32));
-        clock->restart();
-        if (ballPos.x < racket->getPosition().x)
-        {
-            sprite->scale(-1, 1);
-            *flipped = true;
-        }
+        sprite.setTextureRect(sf::IntRect(0, (player * 32), 32, 32));
     }
 
-    if (*state == swing)
-    {
-        if (clock->getElapsedTime().asSeconds() > frameDuration)
-        {
-            *frame += 1;
+    sf::Sprite _update(sf::Vector2f ballPos) {
+        if (pressed(swingKey) && state != swing) {
+            state = swing;
+            frame = 0;
 
-            if (*frame > 3)
-            {
-                *frame = 0;
-                *state = idle;
-                if (*flipped)
-                {
-                    sprite->scale(-1, 1);
-                    *flipped = false;
-                }
+            switch (turn) {
+                case p1:
+                    if (ballPos.x > racket.getPosition().x)
+                        flipSprite = true;
+                    break;
+
+                default:
+                    if (ballPos.x < racket.getPosition().x)
+                        flipSprite = true;
+                    break;
             }
-            else
-            {
-                sprite->setTextureRect(sf::IntRect((*frame * 32), 160, 32, 32));
-                clock->restart();
+            if (flipSprite)
+                sprite.scale(-1, 1);
+
+            clock.restart();
+        }
+        movement();
+        animate();
+        return sprite;
+    }
+
+    sf::Vector2f movement() {
+        position = sprite.getPosition();
+        playerVec = sf::Vector2f(0.f, 0.f);
+
+        if (state != swing) {
+
+            if (pressed(left))
+                playerVec += sf::Vector2f(-1.f, 0.f);
+
+            if (pressed(right))
+                playerVec += sf::Vector2f(1.f, 0.f);
+
+            if (pressed(up))
+                playerVec += sf::Vector2f(0.f, -1.f);
+
+            if (pressed(down))
+                playerVec += sf::Vector2f(0.f, 1.f);
+
+            // Deciding state
+
+            if (!isAnyKeyPressed())
+                state = idle;
+
+            if (playerVec.y != 0)
+                state = runVert;
+
+            if (playerVec.x < 0)
+                state = runLeft;
+
+            if (playerVec.x > 0)
+                state = runRight;
+        }
+
+        // Normalise the speed
+        if (playerVec.x != 0.f && playerVec.y != 0.f) {
+            vecLength = sqrt(pow(playerVec.x, 2.f) + pow(playerVec.y, 2.f));
+            playerVec.x /= vecLength;
+            playerVec.y /= vecLength;
+        }
+        playerVec *= speed;
+
+        //Keep player within bounds!
+        switch (turn) {
+            case p2:
+                if (position.x + playerVec.x < 15.f)
+                    playerVec.x = (position.x - 15);
+
+                if (position.x + playerVec.x > 231.f)
+                    playerVec.x = 231.f - position.x;
+
+                if (position.y + playerVec.y < 122.f)
+                    playerVec.y = position.y - 122.f;
+
+                if (position.y > 240.f)
+                    playerVec.y = 240.f - position.y;
+                break;
+
+            default:
+                if (position.x + playerVec.x < 15.f)
+                    playerVec.x = (position.x - 15);
+
+                if (position.x + playerVec.x > 231.f)
+                    playerVec.x = 231.f - position.x;
+
+                if (position.y + playerVec.y < 20.f)
+                    playerVec.y = position.y - 20.f;
+
+                if (position.y > 108.f)
+                    playerVec.y = 108.f - position.y;
+                break;
+        }
+        sprite.move(playerVec);
+        racket.move(playerVec);
+    }
+
+    void animate() {
+        if (clock.getElapsedTime().asSeconds() > frameDuration) {
+            ++frame;
+            clock.restart();
+        }
+
+        if (frame > 3 && state == swing) {
+            if (flipSprite) {
+                flipSprite = false;
+                sprite.scale(-1, 1);
+            }
+            state = idle;
+        }
+        frame %= 4;
+        switch (state) {
+            case swing:
+                sprite.setTextureRect(sf::IntRect((frame * 32), 128 + (32 * player), 32, 32));
+                break;
+
+            case runLeft:
+                sprite.setTextureRect(sf::IntRect((frame * 32), 64, 32, 32));
+                break;
+
+            case runRight:
+                sprite.setTextureRect(sf::IntRect((frame * 32), 96, 32, 32));
+                break;
+
+            case runVert:
+                sprite.setTextureRect(sf::IntRect((frame * 32), (32 * player), 32, 32));
+                break;
+
+            case idle:
+                sprite.setTextureRect(sf::IntRect(0, (32 * player), 32, 32));
+                break;
+        }
+    }
+
+    void setPosition(sf::Vector2f pos) {
+        sprite.setPosition(pos);
+        racket.setPosition(pos);
+    }
+
+    Turn getTurn() { return turn; }
+
+    sf::RectangleShape getRacket() { return racket; }
+
+    State getState() { return state; }
+
+    sf::Sprite *_sprite() { return &sprite; }
+
+    bool isAnyKeyPressed() {
+        for (int k = 0; k < 5; ++k) {
+            if (sf::Keyboard::isKeyPressed(keyList[k]))
+                return true;
+        }
+        return false;
+    }
+
+    // made this because i HATE writing out sf::Keyboard::isKeyPressed(key[n]) every. single. DAMN. TIME.
+    bool pressed(sf::Keyboard::Key key) { return sf::Keyboard::isKeyPressed(key); }
+};
+
+class Ball : public IBall {
+private:
+    bool ballIn;
+    sf::Sprite sprite, cross;
+    sf::Clock clock;
+    sf::Vector2f momentum, start, end, anchor, distanceVec;
+    Player *player1, *player2;
+    sf::RectangleShape activeRacket;
+    int rally, crossFrame = 0;
+    float speed = .8f, rotate, height, factor = 1, distance = 0.f;
+    Turn currentTurn, server = p1;
+    State activePlayerState;
+    IUmpire *umpire_;
+    int games = 0;
+    sf::ConvexShape court;
+
+
+public:
+    int bounces = 0;
+
+    Ball(sf::Texture *texture, Player *_player1, Player *_player2, Turn _turn, sf::Texture *crossTexture) {
+        sprite.setTexture(*texture);
+        sprite.setOrigin(4, 4);
+        cross.setTexture(*crossTexture);
+        cross.setTextureRect(sf::IntRect(0, 0, 10, 10));
+        cross.setOrigin(5, 5);
+        cross.setPosition(-10, -10);
+        server = _turn;
+        currentTurn = server;
+        momentum = sf::Vector2f(0.f, 0.f);
+        start = sf::Vector2f(0.f, 0.f);
+        end = sf::Vector2f(0.f, 0.f);
+        distanceVec = sf::Vector2f(0.f, 0.f);
+        player1 = _player1;
+        player2 = _player2;
+        court.setPointCount(4);
+        sf::Vector2f points[] = {
+                sf::Vector2f(68, 64),
+                sf::Vector2f(171, 64),
+                sf::Vector2f(178, 192),
+                sf::Vector2f(61, 192)
+        };
+        for (int i = 0; i < 4; ++i) {
+            court.setPoint(i, points[i]);
+        }
+        court.setFillColor(sf::Color(100, 50, 255, 100));
+        court.setOutlineColor(sf::Color(255, 0, 0, 255));
+    }
+
+    void setPosition(sf::Vector2f vec) {
+        sprite.setPosition(vec);
+        start = vec;
+        end = vec;
+        momentum = sf::Vector2f(0, 0);
+    }
+
+    void setTurn(Turn _turn) { currentTurn = _turn; }
+
+    sf::Sprite *_sprite() { return &sprite; }
+
+    sf::Sprite *_cross() { return &cross; }
+
+    sf::Vector2f getPosition() { return sprite.getPosition(); }
+
+    float ballHeight(sf::Vector2f vecTravelled) {
+        float d = distance;
+        float x = sqrt(pow(vecTravelled.x, 2) + pow(vecTravelled.y, 2)); // distance travelled
+        float m = (d / 2);                                               // midpoint
+        float fx = x * (d - x) / m;                                // f(x) = x(d-x) / (d/2)
+        float gx = (m * (d - m)) / m;                              // g(x) = f(x=m)
+        // std::cout << fx / gx << std::endl;
+        return fx / gx;
+    }
+
+    void update(float net_y) {
+        switch (currentTurn) {
+            case p1:
+                activeRacket = player1->getRacket();
+                anchor = activeRacket.getPosition();
+                anchor.y -= 15.f;
+                activePlayerState = player1->getState();
+                break;
+
+            case p2:
+                activeRacket = player2->getRacket();
+                anchor = activeRacket.getPosition();
+                anchor.y += 15.f;
+                activePlayerState = player2->getState();
+                break;
+        }
+        if (sprite.getGlobalBounds().intersects(activeRacket.getGlobalBounds()) && activePlayerState == State(swing)) {
+            start = sprite.getPosition();
+            momentum = start - anchor;
+            momentum.x *= -1;
+            factor = 1;
+            bounces = 0;
+            speed = .8f;
+            if (momentum.x != 0.f or momentum.y != 0.f) {
+                float length = sqrt(pow(momentum.x, 2) + pow(momentum.y, 2));
+                momentum.x /= length;
+                momentum.y /= length;
+            }
+            end.x = start.x + momentum.x * 40.f;
+            end.y = start.y + momentum.y * 40.f;
+            distanceVec = end - start;
+            cross.setPosition(end);
+
+            distance = sqrt(pow(distanceVec.x, 2) + pow(distanceVec.y, 2));
+
+            crossFrame = 0;
+            clock.restart();
+            currentTurn = (currentTurn == p1 ? p2 : p1);
+        }
+
+        // Animate landing
+        if (clock.getElapsedTime().asSeconds() > 0.2) {
+            ++crossFrame;
+            crossFrame %= 12;
+            cross.setTextureRect(sf::IntRect(0, (crossFrame * 10), 10, 10));
+        }
+        sf::Vector2f travelled = sprite.getPosition() - start;
+        height = (momentum.x != 0 or momentum.y != 0) ? ballHeight(travelled) : 0;
+
+        if (height < 0 or std::isnan(height))   // will reset after 1st bounce.
+        {
+            ballIn = sprite.getGlobalBounds().intersects(court.getGlobalBounds());
+            ++bounces;
+            if (bounces >= 2) { Notify(false); }
+            else if (!ballIn) { Notify(true); }
+            start = sprite.getPosition();
+            momentum *= .95f;
+            speed *= .9f;
+            factor *= .4;
+            end = start + (distanceVec * .5f);
+            cross.setPosition(end);
+            height = ballHeight(sprite.getPosition() - start);
+        }
+        height *= factor;
+        sprite.setScale(.9f + height, .9f + height);
+
+        sprite.move(momentum * speed);
+    }
+
+    void changeServe() {
+        switch (server) {
+            case p1:
+                server = p2;
+                break;
+            case p2:
+                server = p1;
+                break;
+        }
+    }
+
+    void reset(bool set) {
+        player1->setPosition(sf::Vector2f(70.0f, 50.0f));
+        player2->setPosition(sf::Vector2f(155.0f, 170.0f));
+        if (set) { changeServe(); }
+        if (server == p2) {
+            this->setPosition(player2->getRacket().getPosition());
+        } else if (server == p1) {
+            this->setPosition(player1->getRacket().getPosition());
+        }
+        momentum = sf::Vector2f(0.f, 0.f);
+        start = sf::Vector2f(0.f, 0.f);
+        end = sf::Vector2f(0.f, 0.f);
+        distanceVec = sf::Vector2f(0.f, 0.f);
+        currentTurn = server;
+        cross.setPosition(-10, -10);
+
+    }
+
+    sf::ConvexShape bounds() { return court; }
+
+    void Attach(IUmpire *pUmpire) override {
+        umpire_ = pUmpire;
+    }
+
+    void Notify(bool out) override {
+        if (out) {
+            switch (currentTurn) {
+                case p1:
+                    currentTurn = p2;
+                    break;
+                case p2:
+                    currentTurn = p1;
+                    break;
             }
         }
+        umpire_->Update(currentTurn);
     }
-    else
-    {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            move += sf::Vector2f(-1.f, 0.f);
+};
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            move += sf::Vector2f(1.f, 0.f);
+class Umpire : public IUmpire {
+private:
+    Ball &ball_;
+    int bounces;
+    int games;
+    sf::String message;
+public:
+    std::map<sf::String, int> score;
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            move += sf::Vector2f(0.f, -1.f);
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            move += sf::Vector2f(0.f, 1.f);
-
-        // Setting idle state and animation.
-        if (!isAnyKeyPressed2() && *state != swing)
-        {
-            *frame = 0;
-            *state = idle;
-            row = 1;
-        }
-
-        if (move.y != 0)
-        {
-            *state = runVert;
-            row = 1;
-        }
-
-        if (move.x < 0)
-        {
-            *state = runRight;
-            row = 2;
-        }
-
-        if (move.x > 0)
-        {
-            *state = runLeft;
-            row = 3;
-        }
-
-        // Animation
-        if (clock->getElapsedTime().asSeconds() > frameDuration)
-        {
-            *frame %= 4;
-            if (*state = idle)
-                *frame = 0;
-            sprite->setTextureRect(sf::IntRect((*frame * 32), (row * 32), 32, 32));
-            *frame += 1;
-            clock->restart();
-        }
+    Umpire(Ball &ball) : ball_(ball) {
+        this->ball_.Attach(this);
+        score["p1"] = 0;
+        score["p2"] = 0;
     }
-    // Movement
 
-    // Normalise the speed
-    if (move.x != 0.f && move.y != 0.f)
-    {
-        length = sqrt(pow(move.x, 2.f) + pow(move.y, 2.f));
-        move.x /= length;
-        move.y /= length;
+    void Update(Turn loser) override {
+        switch (loser) {
+            case p1:
+                score["p2"] += 1;
+                break;
+            case p2:
+                score["p1"] += 1;
+                break;
+        }
+        std::cout << "|p1: " << score["p1"] << "|";
+        std::cout << "p2: " << score["p2"] << "|" << std::endl;
+        ball_.reset(false);
     }
-    move *= speed;
-    if (position.x + move.x < 15.f)
-        move.x = (position.x - 15);
+};
 
-    if (position.x + move.x > 231.f)
-        move.x = 231.f - position.x;
+void uiDraw(sf::RenderWindow *pWindow, Umpire *pUmpire, std::map<std::string, sf::Text> *pMap);
 
-    if (position.y + move.y < 115.f)
-        move.y = position.y - 115.f;
+sf::View getLetterboxView(sf::View view, int windowWidth, int windowHeight) {
 
-    if (position.y > 240.f)
-        move.y = 240.f - position.y;
+    // Compares the aspect ratio of the window to the aspect ratio of the view,
+    // and sets the view's viewport accordingly in order to archieve a letterbox effect.
+    // A new view (with a new viewport set) is returned.
 
-    racket->move(move);
-    sprite->move(move);
+    float windowRatio = windowWidth / (float) windowHeight;
+    float viewRatio = view.getSize().x / (float) view.getSize().y;
+    float sizeX = 1;
+    float sizeY = 1;
+    float posX = 0;
+    float posY = 0;
+
+    bool horizontalSpacing = true;
+    if (windowRatio < viewRatio)
+        horizontalSpacing = false;
+
+    // If horizontalSpacing is true, the black bars will appear on the left and right side.
+    // Otherwise, the black bars will appear on the top and bottom.
+
+    if (horizontalSpacing) {
+        sizeX = viewRatio / windowRatio;
+        posX = (1 - sizeX) / 2.f;
+    } else {
+        sizeY = windowRatio / viewRatio;
+        posY = (1 - sizeY) / 2.f;
+    }
+
+    view.setViewport(sf::FloatRect(posX, posY, sizeX, sizeY));
+
+    return view;
 }
 
-void p1Movement(sf::Sprite *sprite, State *state, sf::Clock *clock,
-                int *frame, sf::RectangleShape *racket, sf::Vector2f ballPos, bool *flipped)
-{
-    sf::Vector2f position = sprite->getPosition();
-    sf::Vector2f move = sf::Vector2f(0.f, 0.f);
-    int row = 0;
-    float length;
-
-    // Setting state and vector based on action
-    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad0) && *state != swing)
-    {
-        sprite->setRotation(0.f);
-        *state = swing;
-        *frame = 0;
-        sprite->setTextureRect(sf::IntRect(0, 128, 32, 32));
-        clock->restart();
-        if (ballPos.x > racket->getPosition().x)
-        {
-            sprite->scale(-1, 1);
-            *flipped = true;
-        }
-    }
-
-    if (*state == swing)
-    {
-        if (clock->getElapsedTime().asSeconds() > frameDuration)
-        {
-            *frame += 1;
-
-            if (*frame > 3)
-            {
-                *frame = 0;
-                *state = idle;
-                if (*flipped)
-                {
-                    sprite->scale(-1, 1);
-                    *flipped = false;
-                }
-            }
-            else
-            {
-                sprite->setTextureRect(sf::IntRect((*frame * 32), 128, 32, 32));
-                clock->restart();
-            }
-        }
-    }
-    else
-    {
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-            move += sf::Vector2f(-1.f, 0.f);
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-            move += sf::Vector2f(1.f, 0.f);
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-            move += sf::Vector2f(0.f, -1.f);
-
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-            move += sf::Vector2f(0.f, 1.f);
-
-        // Setting idle state and animation.
-        if (!isAnyKeyPressed1() && *state != swing)
-        {
-            *frame = 0;
-            *state = idle;
-            row = 0;
-        }
-
-        if (move.y != 0)
-        {
-            *state = runVert;
-            row = 0;
-        }
-
-        if (move.x < 0)
-        {
-            *state = runRight;
-            row = 2;
-        }
-
-        if (move.x > 0)
-        {
-            *state = runLeft;
-            row = 3;
-        }
-
-        // Animation
-        if (clock->getElapsedTime().asSeconds() > frameDuration)
-        {
-            *frame %= 4;
-            if (*state = idle)
-                *frame = 0;
-            sprite->setTextureRect(sf::IntRect((*frame * 32), (row * 32), 32, 32));
-            *frame += 1;
-            clock->restart();
-        }
-    }
-    // Movement
-    if (move.x != 0.f && move.y != 0.f)
-    {
-        length = sqrt(pow(move.x, 2.f) + pow(move.y, 2.f));
-        move.x /= length;
-        move.y /= length;
-    }
-    move *= speed;
-
-    if (position.x + move.x < 15.f)
-        move.x = (position.x - 15);
-
-    if (position.x + move.x > 231.f)
-        move.x = 231.f - position.x;
-
-    if (position.y + move.y < 20.f)
-        move.y = position.y - 20.f;
-
-    if (position.y > 108.f)
-        move.y = 108.f - position.y;
-    racket->move(move);
-    sprite->move(move);
-}
-
-void ballCalc(sf::Sprite *ball, State state, sf::RectangleShape *racket, sf::Vector2f *ballVec, Turn *turn, Turn player)
-{
-    sf::Vector2f BallVec = *ballVec;
-    float rotationRate;
-    float increase = .4f;
-    float speed = .1f;
-    ball->rotate(20.f);
-    if (ball->getGlobalBounds().intersects(racket->getGlobalBounds()) && (state == swing) && *turn == player)
-    {
-        sf::Vector2f anchor = racket->getPosition();
-
-        if (*turn == p2)
-        {
-            // BallVec.y += increase; // send back ball with more momentum
-            *turn = p1; // add more mmomentum to the ball
-            anchor.y += 15.f;
-        }
-        else if (*turn == p1)
-        {
-            *turn = p2;
-            anchor.y -= 15.f;
-        }
-
-        BallVec = ball->getPosition() - anchor;
-        BallVec.x *= -1;
-
-        // Normalising the speed
-        if (BallVec.x != 0.f or BallVec.y != 0.f)
-        {
-            float length = sqrt(pow(BallVec.x, 2.f) + pow(BallVec.y, 2.f));
-            BallVec.x /= length;
-            BallVec.y /= length;
-        }
-
-        *ballVec = BallVec;
-    }
-    ball->move(*ballVec * speed);
-}
-
-int main()
-{
-    sf::Texture courtTexture, ballTexture, playerTexture, netTexture;
-    sf::Sprite courtSprite, ballSprite, p1Sprite, p2Sprite, netSprite;
+int main() {
+    sf::Texture courtTexture, ballTexture, playerTexture, netTexture, crossTexture;
+    sf::Sprite courtSprite, netSprite;
     sf::Clock clock, clock2;
-    sf::RectangleShape ball(sf::Vector2f(8, 8)), p1FrontHand(sf::Vector2f(26, 15)), p2FrontHand(sf::Vector2f(27, 28));
     sf::Vector2f ballMomentum(0.f, 0.f);
-    sf::Vertex line[2];
-    State p1State, p2State;
-    Turn turn, p1Turn = p1, p2Turn = p2;
-    int p1Frames = 0;
-    int p2Frames = 0;
-    bool p1Flipped = false;
-    bool p2Flipped = true;
+
+    sf::Font font;
+//    sf::Text p1txt, p2txt, p1Games, p2Games, p1Score, p2Score;
+    sf::Text p1txt, p2txt, p1Score, p2Score;
+    std::map<std::string, sf::Keyboard::Key> p1Keys;
+    p1Keys["up"] = sf::Keyboard::W;
+    p1Keys["down"] = sf::Keyboard::S;
+    p1Keys["left"] = sf::Keyboard::A;
+    p1Keys["right"] = sf::Keyboard::D;
+    p1Keys["swing"] = sf::Keyboard::Space;
+
+    std::map<std::string, sf::Keyboard::Key> p2Keys;
+    p2Keys["up"] = sf::Keyboard::Up;
+    p2Keys["down"] = sf::Keyboard::Down;
+    p2Keys["left"] = sf::Keyboard::Left;
+    p2Keys["right"] = sf::Keyboard::Right;
+    p2Keys["swing"] = sf::Keyboard::Numpad0;
+
+    Turn turn;
     if (!courtTexture.loadFromFile("src/assets/TCCourt.png") or
         !playerTexture.loadFromFile("src/assets/32x32_TCPlayers.png") or
         !ballTexture.loadFromFile("src/assets/TCBall.png") or
-        !netTexture.loadFromFile("src/assets/TCNet.png"))
-    {
+        !netTexture.loadFromFile("src/assets/TCNet.png") or
+        !crossTexture.loadFromFile("src/assets/cross.png") or
+        !font.loadFromFile("src/assets/visitor2.ttf")) {
         return -1;
     }
-    else
-    {
-        courtTexture.setSmooth(false);
-        playerTexture.setSmooth(false);
-        netTexture.setSmooth(false);
+        p1txt.setFont(font);
+    p1txt.setFillColor(sf::Color::Red);
+    p1txt.setCharacterSize(24);
+    p1txt.setStyle(sf::Text::Bold);
+    p1txt.setString("P1");
+    p2txt.setString("P2");
+//    text["p1"].setPosition(0,18);
+//    text["p1Score"].setPosition(35,18);
+//    text["p2"].setPosition(0,36);
+//    text["p2Score"].setPosition(35,36);
+    courtTexture.setSmooth(false);
+    playerTexture.setSmooth(false);
+    netTexture.setSmooth(false);
 
-        netSprite.setTexture(netTexture);
-        netSprite.setPosition(sf::Vector2f(38.f, 108.f));
+    netSprite.setTexture(netTexture);
+    netSprite.setPosition(sf::Vector2f(38.f, 108.f));
 
-        courtSprite.setTexture(courtTexture);
+    courtSprite.setTexture(courtTexture);
+    // Player 1 set up
+    Player player1 = Player(p1, &playerTexture, p1Keys);
+    player1.setPosition(sf::Vector2f(70.0f, 50.0f));
 
-        // Player 1 set up
-        p1Sprite.setTexture(playerTexture);
-        p1Sprite.setTextureRect(sf::IntRect(0, 0, 32, 32));
-        p1Sprite.setPosition(sf::Vector2f(100.0f, 100.0f));
-        p1Sprite.setOrigin(sf::Vector2f(16.f, 16.f));
+    // Player 2 set up
+    Player player2 = Player(p2, &playerTexture, p2Keys);
+    player2.setPosition(sf::Vector2f(155.0f, 170.0f));
 
-        p1FrontHand.setOrigin(sf::Vector2f(13, 0));
-        p1FrontHand.setPosition(p1Sprite.getPosition());
-        p1FrontHand.setFillColor(sf::Color(255, 0, 0, 100));
+    // Ball set up
+    Ball baliBallerson(&ballTexture, &player1, &player2, Turn(p1), &crossTexture);
+    baliBallerson.setPosition(sf::Vector2f(100, 100));
 
-        p1State = idle;
+    // Umpire!!
+    Umpire *umpire = new Umpire(*&baliBallerson);
+    // Window and view Set up
+    sf::RenderWindow window(sf::VideoMode(240, 240), "TennisChumpsSFML!");
 
-        // Player 2 set up
-        p2Sprite.setTexture(playerTexture);
-        p2Sprite.setTextureRect(sf::IntRect(0, 32, 32, 32));
-        p2Sprite.setPosition(sf::Vector2f(200.0f, 200.0f));
-        p2Sprite.setOrigin(sf::Vector2f(16.f, 16.f));
+    sf::View view;
+    view.setSize(240, 240);
+    view.setCenter(view.getSize().x / 2, view.getSize().y / 2);
+    view = getLetterboxView(view, 240, 240);
 
-        p2FrontHand.setOrigin(sf::Vector2f(13, 18));
-        p2FrontHand.setPosition(p2Sprite.getPosition() + sf::Vector2f(0.f, 4.f));
-        p2FrontHand.setFillColor(sf::Color(255, 0, 0, 100));
-
-        p2State = idle;
-
-        // Ball Set-up
-        ballSprite.setTexture(ballTexture);
-        ballSprite.setOrigin(4, 4);
-
-        ball.setOutlineThickness(0.2f);
-        ball.setOutlineColor(sf::Color(250, 150, 100));
-        ball.setOrigin(4, 4);
-
-        ballSprite.setPosition(120, 120);
-    }
-
-    sf::RenderWindow window(sf::VideoMode(240, 240), "SFML works!");
+    sf::Vertex line[] = {
+            sf::Vertex{sf::Vector2f(netSprite.getPosition().x - 130, netSprite.getPosition().y)},
+            sf::Vertex{sf::Vector2f(netSprite.getPosition().x + 230, netSprite.getPosition().y)}
+    };
     window.setFramerateLimit(60);
     turn = p1;
-    while (window.isOpen())
-    {
+    float netY = netSprite.getPosition().y;
+    while (window.isOpen()) {
         sf::Event event;
-        while (window.pollEvent(event))
-        {
+        while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
+
+            if (event.type == sf::Event::Resized)
+                view = getLetterboxView(view, event.size.width, event.size.height);
         }
         window.clear();
-        // Movement of players and ball
-        p1Movement(&p1Sprite, &p1State, &clock, &p1Frames, &p1FrontHand, ballSprite.getPosition(), &p1Flipped);
-        p2Movement(&p2Sprite, &p2State, &clock2, &p2Frames, &p2FrontHand, ballSprite.getPosition(), &p2Flipped);
-        ballCalc(&ballSprite, p1State, &p1FrontHand, &ballMomentum, &turn, p1Turn);
-        ballCalc(&ballSprite, p2State, &p2FrontHand, &ballMomentum, &turn, p2Turn);
-        // Lines to show shot directionals
-        // sf::Vertex linep1[2] = {
-        //     sf::Vertex(p1FrontHand.getPosition(), sf::Color(255, 0, 255, 100)),
-        //     sf::Vertex((p1FrontHand.getPosition() + sf::Vector2f(0.f, 50.f)), sf::Color(255, 0, 255, 100))};
 
-        sf::Vertex linep1_1[2] = {
-            sf::Vertex(p1FrontHand.getPosition() - sf::Vector2f(5, 0), sf::Color::Cyan),
-            sf::Vertex((p1FrontHand.getPosition() + sf::Vector2f(-5.f, 50.f)), sf::Color::Cyan)};
+        window.setView(view);
 
-        sf::Vertex linep1_2[2] = {
-            sf::Vertex(p1FrontHand.getPosition() + sf::Vector2f(5, 0), sf::Color::Yellow),
-            sf::Vertex((p1FrontHand.getPosition() + sf::Vector2f(5.f, 50.f)), sf::Color::Yellow)};
-
-        sf::Vertex linep2[2] = {
-            sf::Vertex(p2FrontHand.getPosition(), sf::Color(0, 0, 255, 100)),
-            sf::Vertex((p2FrontHand.getPosition() - sf::Vector2f(0.f, 50.f)), sf::Color(0, 0, 255, 100))};
-
+        baliBallerson.update(netY);
         // Displaying graphics
+
         window.draw(courtSprite);
-
-        // Draw P1
-        window.draw(p1Sprite);
-        window.draw(p1FrontHand);
-        // window.draw(linep1, 2, sf::Lines);
-        window.draw(linep1_1, 2, sf::Lines);
-        window.draw(linep1_2, 2, sf::Lines);
-
-        // Draw P2
-        window.draw(p2Sprite);
-        window.draw(p2FrontHand);
-        window.draw(linep2, 2, sf::Lines);
-
+        window.draw(baliBallerson.bounds());
+        window.draw(*baliBallerson._cross());
+        window.draw(player1._update(baliBallerson.getPosition()));
         window.draw(netSprite);
-        window.draw(ballSprite);
+        window.draw(player2._update(baliBallerson.getPosition()));
+
+//        if (!baliBallerson.bounces < 1) { window.draw(baliBallerson.cross()); }
+        window.draw(*baliBallerson._sprite());
+        window.draw(line, 2, sf::Lines);
+
+        // Draw ui
+//        if (umpire->score["p1"]>3 or umpire->score["p2"]>3){
+//            if(umpire->score["p1"] == umpire->score["p2"]){
+//                text[2].setString("DEUCE");
+//                text[3].setString("DEUCE");
+//            } else if(umpire->score["p1"] > umpire->score["p2"]){
+//                text[2].setString("ADV");
+//                text[3].setString("40");
+//            } else if(umpire->score["p1"] < umpire->score["p2"]){
+//                text[2].setString("40");
+//                text[3].setString("ADV");
+//            }
+//        }
+//        for (sf::Text txt:text) {
+//            txt.setPosition(120,120);
+//            window.draw(txt);
+//        }
+        p1txt.setPosition(120,120);
+        window.draw(p1txt);
         window.display();
     }
 
