@@ -3,7 +3,6 @@
 #include <iostream>
 #include <cmath>
 
-float speed = 2.f;
 enum State {
     idle,
     runLeft,
@@ -16,10 +15,15 @@ enum Turn {
     p1,
     p2
 };
+struct Scores {
+    int score;
+    int games;
+    int sets;
+};
 
 class IUmpire {
 public:
-    virtual ~IUmpire() {};
+    virtual ~IUmpire() = default;;
 
     virtual void Update(Turn loser) = 0;
 };
@@ -82,7 +86,7 @@ public:
         sprite.setTextureRect(sf::IntRect(0, (player * 32), 32, 32));
     }
 
-    sf::Sprite _update(sf::Vector2f ballPos) {
+    void update(sf::Vector2f ballPos) {
         if (pressed(swingKey) && state != swing) {
             state = swing;
             frame = 0;
@@ -105,10 +109,9 @@ public:
         }
         movement();
         animate();
-        return sprite;
     }
 
-    sf::Vector2f movement() {
+    void movement() {
         position = sprite.getPosition();
         playerVec = sf::Vector2f(0.f, 0.f);
 
@@ -258,12 +261,11 @@ private:
     Turn currentTurn, server = p1;
     State activePlayerState;
     IUmpire *umpire_;
-    int games = 0;
     sf::ConvexShape court;
-
 
 public:
     int bounces = 0;
+    bool active = true;
 
     Ball(sf::Texture *texture, Player *_player1, Player *_player2, Turn _turn, sf::Texture *crossTexture) {
         sprite.setTexture(*texture);
@@ -320,72 +322,75 @@ public:
     }
 
     void update(float net_y) {
-        switch (currentTurn) {
-            case p1:
-                activeRacket = player1->getRacket();
-                anchor = activeRacket.getPosition();
-                anchor.y -= 15.f;
-                activePlayerState = player1->getState();
-                break;
+        if (active) {
+            switch (currentTurn) {
+                case p1:
+                    activeRacket = player1->getRacket();
+                    anchor = activeRacket.getPosition();
+                    anchor.y -= 15.f;
+                    activePlayerState = player1->getState();
+                    break;
 
-            case p2:
-                activeRacket = player2->getRacket();
-                anchor = activeRacket.getPosition();
-                anchor.y += 15.f;
-                activePlayerState = player2->getState();
-                break;
-        }
-        if (sprite.getGlobalBounds().intersects(activeRacket.getGlobalBounds()) && activePlayerState == State(swing)) {
-            start = sprite.getPosition();
-            momentum = start - anchor;
-            momentum.x *= -1;
-            factor = 1;
-            bounces = 0;
-            speed = .8f;
-            if (momentum.x != 0.f or momentum.y != 0.f) {
-                float length = sqrt(pow(momentum.x, 2) + pow(momentum.y, 2));
-                momentum.x /= length;
-                momentum.y /= length;
+                case p2:
+                    activeRacket = player2->getRacket();
+                    anchor = activeRacket.getPosition();
+                    anchor.y += 15.f;
+                    activePlayerState = player2->getState();
+                    break;
             }
-            end.x = start.x + momentum.x * 40.f;
-            end.y = start.y + momentum.y * 40.f;
-            distanceVec = end - start;
-            cross.setPosition(end);
+            if (sprite.getGlobalBounds().intersects(activeRacket.getGlobalBounds()) &&
+                activePlayerState == State(swing)) {
+                start = sprite.getPosition();
+                momentum = start - anchor;
+//            momentum.x *= -1;
+                factor = 1;
+                bounces = 0;
+                speed = .8f;
+                if (momentum.x != 0.f or momentum.y != 0.f) {
+                    float length = sqrt(pow(momentum.x, 2) + pow(momentum.y, 2));
+                    momentum.x /= length;
+                    momentum.y /= length;
+                }
+                end.x = start.x + momentum.x * 40.f;
+                end.y = net_y + momentum.y * 30.f;
+                distanceVec = end - start;
+                cross.setPosition(end);
 
-            distance = sqrt(pow(distanceVec.x, 2) + pow(distanceVec.y, 2));
+                distance = sqrt(pow(distanceVec.x, 2) + pow(distanceVec.y, 2));
 
-            crossFrame = 0;
-            clock.restart();
-            currentTurn = (currentTurn == p1 ? p2 : p1);
+                crossFrame = 0;
+                clock.restart();
+                currentTurn = (currentTurn == p1 ? p2 : p1);
+            }
+
+            // Animate landing
+            if (clock.getElapsedTime().asSeconds() > 0.2) {
+                ++crossFrame;
+                crossFrame %= 12;
+                cross.setTextureRect(sf::IntRect(0, (crossFrame * 10), 10, 10));
+            }
+            sf::Vector2f travelled = sprite.getPosition() - start;
+            height = (momentum.x != 0 or momentum.y != 0) ? ballHeight(travelled) : 0;
+
+            if (height < 0 or std::isnan(height))   // will reset after 1st bounce.
+            {
+                ballIn = sprite.getGlobalBounds().intersects(court.getGlobalBounds());
+                ++bounces;
+                if (bounces >= 2) { Notify(false); }
+                else if (!ballIn) { Notify(true); }
+                start = sprite.getPosition();
+                momentum *= .95f;
+                speed *= .9f;
+                factor *= .4;
+                end = start + (distanceVec * .5f);
+                distanceVec = end - start;
+                cross.setPosition(end);
+                height = ballHeight(sprite.getPosition() - start);
+            }
+            height *= factor;
+            sprite.setScale(.9f + height, .9f + height);
+            sprite.move(momentum * speed);
         }
-
-        // Animate landing
-        if (clock.getElapsedTime().asSeconds() > 0.2) {
-            ++crossFrame;
-            crossFrame %= 12;
-            cross.setTextureRect(sf::IntRect(0, (crossFrame * 10), 10, 10));
-        }
-        sf::Vector2f travelled = sprite.getPosition() - start;
-        height = (momentum.x != 0 or momentum.y != 0) ? ballHeight(travelled) : 0;
-
-        if (height < 0 or std::isnan(height))   // will reset after 1st bounce.
-        {
-            ballIn = sprite.getGlobalBounds().intersects(court.getGlobalBounds());
-            ++bounces;
-            if (bounces >= 2) { Notify(false); }
-            else if (!ballIn) { Notify(true); }
-            start = sprite.getPosition();
-            momentum *= .95f;
-            speed *= .9f;
-            factor *= .4;
-            end = start + (distanceVec * .5f);
-            cross.setPosition(end);
-            height = ballHeight(sprite.getPosition() - start);
-        }
-        height *= factor;
-        sprite.setScale(.9f + height, .9f + height);
-
-        sprite.move(momentum * speed);
     }
 
     void changeServe() {
@@ -399,10 +404,10 @@ public:
         }
     }
 
-    void reset(bool set) {
+    void reset(bool game) {
         player1->setPosition(sf::Vector2f(70.0f, 50.0f));
         player2->setPosition(sf::Vector2f(155.0f, 170.0f));
-        if (set) { changeServe(); }
+        if (game) { changeServe(); }
         if (server == p2) {
             this->setPosition(player2->getRacket().getPosition());
         } else if (server == p1) {
@@ -414,7 +419,6 @@ public:
         distanceVec = sf::Vector2f(0.f, 0.f);
         currentTurn = server;
         cross.setPosition(-10, -10);
-
     }
 
     sf::ConvexShape bounds() { return court; }
@@ -441,34 +445,288 @@ public:
 class Umpire : public IUmpire {
 private:
     Ball &ball_;
-    int bounces;
-    int games;
     sf::String message;
+    bool *_cutscene;
 public:
-    std::map<sf::String, int> score;
+    bool game = false;
+    bool match = false;
+    Scores p1, p2;
+    int diff = 0, gameDiff = 0;
+    Turn gameWinner;
 
-    Umpire(Ball &ball) : ball_(ball) {
+    Umpire(Ball &ball, bool *cutscene) : ball_(ball) {
+        _cutscene = cutscene;
         this->ball_.Attach(this);
-        score["p1"] = 0;
-        score["p2"] = 0;
+        p1.score = 3;
+        p1.games = 5;
+        p1.sets = 0;
+        p2.score = 0;
+        p2.games = 4;
+        p2.sets = 0;
     }
 
     void Update(Turn loser) override {
         switch (loser) {
-            case p1:
-                score["p2"] += 1;
+            case Turn::p1:
+                p2.score += 1;
                 break;
-            case p2:
-                score["p1"] += 1;
+            case Turn::p2:
+                p1.score += 1;
                 break;
         }
-        std::cout << "|p1: " << score["p1"] << "|";
-        std::cout << "p2: " << score["p2"] << "|" << std::endl;
-        ball_.reset(false);
+        if (p1.score > p2.score) {
+            diff = (p1.score - p2.score);
+        } else if (p2.score > p1.score) {
+            diff = (p2.score - p1.score);
+        } else if (p1.score == p2.score) {
+            diff = 0;
+        }
+        if ((p1.score > 3) or (p2.score > 3)) {
+            if (diff >= 2) {
+                if (p1.score > p2.score) { p1.games += 1; }
+                else { p2.games += 1; }
+                game = true;
+//                ball_.reset(true);
+                p1.score = 0;
+                p2.score = 0;
+            } else {
+                game = false;
+//                ball_.reset(false);
+            }
+        } else {
+//            ball_.reset(false);
+            game = false;
+        }
+        // Check if set!
+
+        gameDiff = (p2.games - p1.games);
+
+        if ((p1.games > 5) or (p2.games > 5)) {
+            if (gameDiff >= 2 or gameDiff <= -2) {
+                if (p1.games > p2.games) {
+                    p1.sets += 1;
+                    gameWinner = Turn::p1;
+                } else {
+                    p2.sets += 1;
+                    gameWinner = Turn::p2;
+                }
+                *_cutscene = true;
+//                p1.games = 0;
+//                p2.games = 0;
+            }
+        }
+        if (!*_cutscene) { ball_.reset(game); }
+
     }
 };
 
-void uiDraw(sf::RenderWindow *pWindow, Umpire *pUmpire, std::map<std::string, sf::Text> *pMap);
+class UI {
+private:
+    sf::Sprite board, dash, set, match, p1Score, p2Score, p1Sets, p1Games, p2Sets, p2Games;
+    sf::Clock nextFrame, flicker;
+    float frame = 0;
+    Umpire &umpire_;
+    bool show = true;
+
+public:
+    UI(Umpire &umpire, sf::Texture *scoreTexture, sf::Texture *setsTexture,
+       sf::Texture *gamesTexture, sf::Texture *boardTexture, bool &cutscene) : umpire_(umpire) {
+        board.setTexture(*boardTexture);
+        board.setPosition(1, 205);
+
+        dash.setTexture(*scoreTexture);
+        dash.setTextureRect(sf::IntRect(64, 85, 11, 6));
+        dash.setPosition(115, 22);
+
+        set.setTexture(*scoreTexture);
+        set.setTextureRect(sf::IntRect(0, 96, 48, 16));
+        set.setScale(0, 0);
+        set.setOrigin(24, 8);
+        set.setPosition(120, 120);
+
+        p1Score.setTexture(*scoreTexture);
+
+        p1Games.setTexture(*gamesTexture);
+        p1Games.setTextureRect(sf::IntRect(0, 0, 62, 10));
+        p1Games.setPosition(20, 217);
+
+        p1Sets.setTexture(*setsTexture);
+        p1Sets.setTextureRect(sf::IntRect(0, 0, 32, 10));
+        p1Sets.setPosition(83, 217);
+
+        p2Score.setTexture(*scoreTexture);
+
+        p2Games.setTexture(*gamesTexture);
+        p2Games.setTextureRect(sf::IntRect(0, 0, 62, 10));
+        p2Games.setPosition(20, 228);
+
+        p2Sets.setTexture(*setsTexture);
+        p2Sets.setTextureRect(sf::IntRect(0, 0, 32, 10));
+        p2Sets.setPosition(83, 228);
+    }
+
+    void update() {
+        int score_p1 = umpire_.p1.score;
+        int score_p2 = umpire_.p2.score;
+        if ((score_p1 >= 3) && (score_p2 >= 3)) {
+            if (score_p1 > score_p2) {
+                p1Score.setTextureRect(sf::IntRect(0, 80, 50, 16));
+                p1Score.setPosition(112, 16);
+                p1Score.setOrigin(50, 0);
+                p2Score.setTextureRect(sf::IntRect(0, 80, 0, 0));
+            } else if (score_p1 < score_p2) {
+                p2Score.setTextureRect(sf::IntRect(0, 80, 50, 16));
+                p1Score.setTextureRect(sf::IntRect(0, 80, 0, 0));
+            } else {
+                p1Score.setOrigin(0, 0);
+                p1Score.setTextureRect(sf::IntRect(0, 64, 79, 16));
+                p1Score.setPosition(82, 16);
+                p2Score.setTextureRect(sf::IntRect(0, 64, 0, 0));
+            }
+        } else {
+            switch (score_p1) {
+                case 0:
+                    p1Score.setOrigin(63, 0);
+                    p1Score.setTextureRect(sf::IntRect(0, 16 * score_p1, 63, 16));
+                    break;
+                default:
+                    p1Score.setOrigin(31, 0);
+                    p1Score.setTextureRect(sf::IntRect(0, 16 * score_p1, 32, 16));
+                    break;
+            }
+            p1Score.setPosition(112, 16);
+            switch (score_p2) {
+                case 0:
+                    p2Score.setTextureRect(sf::IntRect(0, 16 * score_p2, 63, 16));
+                    break;
+                default:
+                    p2Score.setTextureRect(sf::IntRect(0, 16 * score_p2, 32, 16));
+                    break;
+            }
+            p2Score.setPosition(127, 16);
+        }
+
+        int games_p1 = umpire_.p1.games;
+        int games_p2 = umpire_.p2.games;
+        int diffG = games_p2 - games_p1;
+        if ((games_p1 > 4) and (games_p2 > 4)) {
+            switch (diffG) {
+                case -2:
+                    p1Games.setTextureRect(sf::IntRect(0, 60, 62, 10));
+                    p2Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
+//                    TODO - ADD END SET ANIMATION TO BE RUN.
+//                      - AND ADD TIMER TO SLOWLY FLASH WHITE ON SCREEN
+//                    umpire_.p1.games = 0;
+//                    umpire_.p2.games = 0;
+                    umpire_.p1.sets += 1;
+                    break;
+                case -1:
+                    p1Games.setTextureRect(sf::IntRect(0, 50, 62, 10));
+                    p2Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
+                    break;
+                case 0:
+                    p1Games.setTextureRect(sf::IntRect(0, 50, 62, 10));
+                    p2Games.setTextureRect(sf::IntRect(0, 50, 62, 10));
+                    break;
+                case 1:
+                    p1Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
+                    p2Games.setTextureRect(sf::IntRect(0, 50, 62, 10));
+                    break;
+                case 2:
+                    p1Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
+                    p2Games.setTextureRect(sf::IntRect(0, 60, 62, 10));
+//                    TODO - ADD END SET ANIMATION TO BE RUN.
+//                      - AND ADD TIMER TO SLOWLY FLASH WHITE ON SCREEN
+//                    umpire_.p1.games = 0;
+//                    umpire_.p2.games = 0;
+                    umpire_.p2.sets += 1;
+                    break;
+            }
+        } else {
+            p1Games.setTextureRect(sf::IntRect(0, games_p1 * 10, 62, 10));
+            p2Games.setTextureRect(sf::IntRect(0, games_p2 * 10, 62, 10));
+        }
+
+        p1Sets.setTextureRect(sf::IntRect(0, 10 * umpire_.p1.sets, 32, 10));
+        p2Sets.setTextureRect(sf::IntRect(0, 10 * umpire_.p2.sets, 32, 10));
+
+
+        if (sf::Keyboard::isKeyPressed(sf::Keyboard::B)) {
+            std::cout << "THE DIFFERENCE IS " << diffG << std::endl << "P1: " << games_p1 << "   P2: " << games_p2;
+        }
+    }
+
+    std::vector<sf::Sprite> getElements() {
+        std::vector<sf::Sprite> elements;
+        elements.push_back(p1Score);
+        elements.push_back(p2Score);
+        elements.push_back(board);
+        elements.push_back(p1Games);
+        elements.push_back(p2Games);
+        elements.push_back(p1Sets);
+        elements.push_back(p2Sets);
+        elements.push_back(set);
+        elements.push_back(dash);
+        return elements;
+    }
+
+    static float easeInOut(float x) {
+        return x < 0.5 ? 4 * x * x * x : 1 - pow(-2 * x + 2, 3) / 2;
+    }
+
+    static float easeOutBounce(float x) {
+        const float n1 = 7.5625;
+        const float d1 = 2.75;
+//        x/= 40;
+
+        if (x < 1 / d1) {
+            return n1 * x * x;
+        } else if (x < 2 / d1) {
+            return n1 * (x -= 1.5 / d1) * x + 0.75;
+        } else if (x < 2.5 / d1) {
+            return n1 * (x -= 2.25 / d1) * x + 0.9375;
+        } else {
+            return n1 * (x -= 2.625 / d1) * x + 0.984375;
+        }
+    }
+
+    void cutScene(bool match, bool *__cutscene__) {
+        float progress = frame / 150;
+        if (nextFrame.getElapsedTime().asMilliseconds() > 3) {
+            if (frame < 150)
+                frame += 1;
+
+            set.setScale(easeOutBounce(progress) * 2, easeOutBounce(progress) * 2);
+            nextFrame.restart();
+        }
+        if (flicker.getElapsedTime().asSeconds() > .2) {
+            show = !show;
+            if (show) {
+                if (umpire_.gameWinner == Turn::p1) {
+                    p1Games.setTextureRect(sf::IntRect(0, 60, 70, 10));
+                } else {
+                    p2Games.setTextureRect(sf::IntRect(0, 60, 70, 10));
+                }
+            } else {
+                if (umpire_.gameWinner == Turn::p1) {
+                    p1Games.setTextureRect(sf::IntRect(0, 0, 70, 10));
+                } else {
+                    p2Games.setTextureRect(sf::IntRect(0, 0, 70, 10));
+                }
+            }
+
+            flicker.restart();
+        }
+        if (progress == 1) {
+            sf::sleep(sf::seconds(1));
+            *__cutscene__ = false;
+            set.setScale(0, 0);
+            umpire_.p1.games = 0;
+            umpire_.p2.games = 0;
+        }
+    }
+
+};
 
 sf::View getLetterboxView(sf::View view, int windowWidth, int windowHeight) {
 
@@ -503,15 +761,51 @@ sf::View getLetterboxView(sf::View view, int windowWidth, int windowHeight) {
     return view;
 }
 
+struct RenderItems {
+    sf::RenderWindow *window;
+    UI *ui;
+    Player *p1;
+    Player *p2;
+    sf::Sprite *court;
+    sf::Sprite *net;
+    Ball *ball;
+};
+
+void renderingThread(RenderItems tempy) {
+//    std::vector<sf::Sprite> uiElements = ui->getElements();
+//    iterator
+    sf::RenderWindow *_window = tempy.window;
+    UI *_ui = tempy.ui;
+    Player *_p1 = tempy.p1;
+    Player *_p2 = tempy.p2;
+    sf::Sprite *_net = tempy.net;
+    sf::Sprite *_court = tempy.court;
+    Ball *_ball = tempy.ball;
+    while (_window->isOpen()) {
+
+        _window->clear();
+        _window->draw(*_court);
+        _window->draw(*_p1->_sprite());
+        _window->draw(*_net);
+        _window->draw(*_p2->_sprite());
+        _window->draw(*_ball->_sprite());
+
+        for (auto element: _ui->getElements()) {
+            _window->draw(element);
+        }
+        _window->display();
+
+    }
+}
+
+bool cutscene = false;
+
 int main() {
-    sf::Texture courtTexture, ballTexture, playerTexture, netTexture, crossTexture;
-    sf::Sprite courtSprite, netSprite;
+    sf::Texture courtTexture, ballTexture, playerTexture, netTexture, crossTexture, scoreTexture, setsTexture, gamesTexture, boardTexture;
+    sf::Sprite courtSprite, netSprite, endText;
     sf::Clock clock, clock2;
     sf::Vector2f ballMomentum(0.f, 0.f);
 
-    sf::Font font;
-//    sf::Text p1txt, p2txt, p1Games, p2Games, p1Score, p2Score;
-    sf::Text p1txt, p2txt, p1Score, p2Score;
     std::map<std::string, sf::Keyboard::Key> p1Keys;
     p1Keys["up"] = sf::Keyboard::W;
     p1Keys["down"] = sf::Keyboard::S;
@@ -531,20 +825,17 @@ int main() {
         !playerTexture.loadFromFile("src/assets/32x32_TCPlayers.png") or
         !ballTexture.loadFromFile("src/assets/TCBall.png") or
         !netTexture.loadFromFile("src/assets/TCNet.png") or
-        !crossTexture.loadFromFile("src/assets/cross.png") or
-        !font.loadFromFile("src/assets/visitor2.ttf")) {
+        !scoreTexture.loadFromFile("src/assets/TCScores.png") or
+        !setsTexture.loadFromFile("src/assets/sets.png") or
+        !gamesTexture.loadFromFile("src/assets/games.png") or
+        !boardTexture.loadFromFile("src/assets/board.png") or
+        !crossTexture.loadFromFile("src/assets/cross.png")
+            ) {
         return -1;
     }
-        p1txt.setFont(font);
-    p1txt.setFillColor(sf::Color::Red);
-    p1txt.setCharacterSize(24);
-    p1txt.setStyle(sf::Text::Bold);
-    p1txt.setString("P1");
-    p2txt.setString("P2");
-//    text["p1"].setPosition(0,18);
-//    text["p1Score"].setPosition(35,18);
-//    text["p2"].setPosition(0,36);
-//    text["p2Score"].setPosition(35,36);
+    endText.setTexture(scoreTexture);
+    endText.setTextureRect(sf::IntRect(0, 112, 0, 0));
+
     courtTexture.setSmooth(false);
     playerTexture.setSmooth(false);
     netTexture.setSmooth(false);
@@ -566,14 +857,11 @@ int main() {
     baliBallerson.setPosition(sf::Vector2f(100, 100));
 
     // Umpire!!
-    Umpire *umpire = new Umpire(*&baliBallerson);
+    Umpire *umpire = new Umpire(*&baliBallerson, &cutscene);
     // Window and view Set up
     sf::RenderWindow window(sf::VideoMode(240, 240), "TennisChumpsSFML!");
+    UI ui(*umpire, &scoreTexture, &setsTexture, &gamesTexture, &boardTexture, cutscene);
 
-    sf::View view;
-    view.setSize(240, 240);
-    view.setCenter(view.getSize().x / 2, view.getSize().y / 2);
-    view = getLetterboxView(view, 240, 240);
 
     sf::Vertex line[] = {
             sf::Vertex{sf::Vector2f(netSprite.getPosition().x - 130, netSprite.getPosition().y)},
@@ -582,53 +870,67 @@ int main() {
     window.setFramerateLimit(60);
     turn = p1;
     float netY = netSprite.getPosition().y;
+
+    sf::Event event;
+    sf::View view;
+    view.setSize(240, 240);
+    view.setCenter(view.getSize().x / 2, view.getSize().y / 2);
+    view = getLetterboxView(view, 240, 240);
+
+    RenderItems renderItems;
+    renderItems.window = &window;
+    renderItems.ui = &ui;
+    renderItems.p1 = &player1;
+    renderItems.p2 = &player2;
+    renderItems.court = &courtSprite;
+    renderItems.net = &netSprite;
+    renderItems.ball = &baliBallerson;
+
+    sf::Thread renderer(&renderingThread, renderItems);
+
+//    renderer.launch(); // start the thread (internally calls task.run())
     while (window.isOpen()) {
-        sf::Event event;
+
         while (window.pollEvent(event)) {
             if (event.type == sf::Event::Closed)
                 window.close();
 
-            if (event.type == sf::Event::Resized)
+            if (event.type == sf::Event::Resized) {
                 view = getLetterboxView(view, event.size.width, event.size.height);
+                window.setView(view);
+            }
         }
+
+
         window.clear();
+        if (cutscene) {
+            ui.cutScene(umpire->match, &cutscene);
+            if (!cutscene)
+                baliBallerson.reset(umpire->game);
+//            cutscene = false;
+        } else {
+            baliBallerson.update(netY);
+            player1.update(baliBallerson.getPosition());
+            player2.update(baliBallerson.getPosition());
+            ui.update();
+        }
 
-        window.setView(view);
-
-        baliBallerson.update(netY);
-        // Displaying graphics
 
         window.draw(courtSprite);
         window.draw(baliBallerson.bounds());
         window.draw(*baliBallerson._cross());
-        window.draw(player1._update(baliBallerson.getPosition()));
+        window.draw(*player1._sprite());
         window.draw(netSprite);
-        window.draw(player2._update(baliBallerson.getPosition()));
-
-//        if (!baliBallerson.bounces < 1) { window.draw(baliBallerson.cross()); }
+        window.draw(*player2._sprite());
         window.draw(*baliBallerson._sprite());
         window.draw(line, 2, sf::Lines);
 
-        // Draw ui
-//        if (umpire->score["p1"]>3 or umpire->score["p2"]>3){
-//            if(umpire->score["p1"] == umpire->score["p2"]){
-//                text[2].setString("DEUCE");
-//                text[3].setString("DEUCE");
-//            } else if(umpire->score["p1"] > umpire->score["p2"]){
-//                text[2].setString("ADV");
-//                text[3].setString("40");
-//            } else if(umpire->score["p1"] < umpire->score["p2"]){
-//                text[2].setString("40");
-//                text[3].setString("ADV");
-//            }
-//        }
-//        for (sf::Text txt:text) {
-//            txt.setPosition(120,120);
-//            window.draw(txt);
-//        }
-        p1txt.setPosition(120,120);
-        window.draw(p1txt);
+        for (auto element: ui.getElements()) {
+            window.draw(element);
+        }
+
         window.display();
+//        renderingThread(renderItems);
     }
 
     return 0;

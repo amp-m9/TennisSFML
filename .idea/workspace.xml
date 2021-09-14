@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="TennisChumpsPracticeGame" targetName="all" />
+      <config projectName="TennisChumpsPracticeGame" targetName="compile" />
+      <config projectName="TennisChumpsPracticeGame" targetName="link" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" ENABLED="true" CONFIG_NAME="Debug" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="2b533433-5560-4f61-bb94-774697be07b6" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.exe" beforeDir="false" afterPath="$PROJECT_DIR$/main.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/openal32.dll" beforeDir="false" afterPath="$PROJECT_DIR$/openal32.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/rotate(-1.5f)" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-audio-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-audio-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-audio-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-audio-d-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-graphics-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-graphics-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-graphics-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-graphics-d-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-network-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-network-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-network-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-network-d-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-system-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-system-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-system-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-system-d-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-window-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-window-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sfml-window-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-window-d-2.dll" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/assets/visitor2.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/cmake/SFML/SFMLConfigVersion.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/cmake/SFML/SFMLConfigVersion.cmake" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libFLAC.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libFLAC.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libfreetype.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libfreetype.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libogg.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libogg.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libopenal32.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libopenal32.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio-s-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio-s.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics-s-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics-s.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-main-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-main-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-main.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-main.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network-s-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network-s.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system-s-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system-s.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window-s-d.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window-s.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window.a" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libvorbis.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libvorbisenc.a" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/lib/libvorbisfile.a" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="PUSH_TAGS">
+      <GitPushTagMode>
+        <option name="argument" value="--tags" />
+        <option name="title" value="All" />
+      </GitPushTagMode>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MakefileLocalSettings">
+    <option name="availableProjects">
+      <map>
+        <entry>
+          <key>
+            <ExternalProjectPojo>
+              <option name="name" value="TennisChumpsPracticeGame" />
+              <option name="path" value="$PROJECT_DIR$" />
+            </ExternalProjectPojo>
+          </key>
+          <value>
+            <list>
+              <ExternalProjectPojo>
+                <option name="name" value="TennisChumpsPracticeGame" />
+                <option name="path" value="$PROJECT_DIR$" />
+              </ExternalProjectPojo>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectId" id="1xllKagtWVU4YFwlTsC55DQykoQ" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="RunOnceActivity.cidr.known.project.marker" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="cidr.known.project.marker" value="true" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/assets" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\andri\Desktop\C++ Games\TennisChumpsPracticeGame\src\assets" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Makefile Application.all">
+    <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="TennisChumpsPracticeGame" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="main.exe">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="compile" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="TennisChumpsPracticeGame" TARGET_NAME="compile" CONFIG_NAME="compile" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="link" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="TennisChumpsPracticeGame" TARGET_NAME="link" CONFIG_NAME="link" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <list>
+      <item itemvalue="Makefile Application.all" />
+      <item itemvalue="Makefile Application.compile" />
+      <item itemvalue="Makefile Application.link" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="2b533433-5560-4f61-bb94-774697be07b6" name="Changes" comment="" />
+      <created>1630937500530</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1630937500530</updated>
+      <workItem from="1630937508703" duration="512000" />
+      <workItem from="1630957565089" duration="651000" />
+      <workItem from="1631018368522" duration="547000" />
+      <workItem from="1631193120990" duration="7808000" />
+      <workItem from="1631348394723" duration="32073000" />
+      <workItem from="1631560700578" duration="4885000" />
+      <workItem from="1631566310048" duration="11953000" />
+      <workItem from="1631618621161" duration="14124000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
