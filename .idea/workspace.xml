@@ -17,54 +17,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2b533433-5560-4f61-bb94-774697be07b6" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/c_cpp_properties.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.exe" beforeDir="false" afterPath="$PROJECT_DIR$/main.exe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/openal32.dll" beforeDir="false" afterPath="$PROJECT_DIR$/openal32.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/rotate(-1.5f)" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-audio-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-audio-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-audio-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-audio-d-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-graphics-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-graphics-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-graphics-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-graphics-d-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-network-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-network-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-network-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-network-d-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-system-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-system-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-system-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-system-d-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-window-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-window-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sfml-window-d-2.dll" beforeDir="false" afterPath="$PROJECT_DIR$/sfml-window-d-2.dll" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/visitor2.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/cmake/SFML/SFMLConfigVersion.cmake" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/cmake/SFML/SFMLConfigVersion.cmake" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libFLAC.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libFLAC.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libfreetype.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libfreetype.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libogg.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libogg.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libopenal32.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libopenal32.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio-s-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio-s.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-audio.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-audio.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics-s-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics-s.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-graphics.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-graphics.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-main-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-main-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-main.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-main.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network-s-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network-s.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-network.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-network.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system-s-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system-s.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-system.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-system.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window-s-d.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window-s-d.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window-s.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window-s.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libsfml-window.a" beforeDir="false" afterPath="$PROJECT_DIR$/src/lib/libsfml-window.a" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libvorbis.a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libvorbisenc.a" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/lib/libvorbisfile.a" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -157,9 +113,9 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
@@ -183,7 +139,8 @@
       <workItem from="1631348394723" duration="32073000" />
       <workItem from="1631560700578" duration="4885000" />
       <workItem from="1631566310048" duration="11953000" />
-      <workItem from="1631618621161" duration="14124000" />
+      <workItem from="1631618621161" duration="32064000" />
+      <workItem from="1631795736533" duration="3635000" />
     </task>
     <servers />
   </component>
@@ -200,5 +157,6 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
 </project>

@@ -10,6 +10,9 @@ enum State {
     runVert,
     swing
 };
+enum Scene {
+    game, set, match
+};
 
 enum Turn {
     p1,
@@ -50,12 +53,14 @@ private:
     sf::Keyboard::Key up, right, down, left, swingKey;
     sf::Keyboard::Key keyList[5];
     State state = idle;
+    bool *active_;
     Turn turn;
 
 public:
-    Player(Turn _turn, sf::Texture *texture, std::map<std::string, sf::Keyboard::Key> keyDict) {
+    Player(Turn _turn, sf::Texture *texture, std::map<std::string, sf::Keyboard::Key> keyDict, bool *active) {
         // movement will be 0->3 with 0 being up and going in a clockwise motion.
         // swing will be 4!
+        active_ = active;
         playerVec = sf::Vector2f(0.f, 0.f);
         up = keyDict["up"];
         right = keyDict["right"];
@@ -87,29 +92,32 @@ public:
     }
 
     void update(sf::Vector2f ballPos) {
-        if (pressed(swingKey) && state != swing) {
-            state = swing;
-            frame = 0;
+        if (*active_) {
+            if (pressed(swingKey) && state != swing) {
+                state = swing;
+                frame = 0;
 
-            switch (turn) {
-                case p1:
-                    if (ballPos.x > racket.getPosition().x)
-                        flipSprite = true;
-                    break;
+                switch (turn) {
+                    case p1:
+                        if (ballPos.x > racket.getPosition().x)
+                            flipSprite = true;
+                        break;
 
-                default:
-                    if (ballPos.x < racket.getPosition().x)
-                        flipSprite = true;
-                    break;
+                    default:
+                        if (ballPos.x < racket.getPosition().x)
+                            flipSprite = true;
+                        break;
+                }
+                if (flipSprite)
+                    sprite.scale(-1, 1);
+
+                clock.restart();
             }
-            if (flipSprite)
-                sprite.scale(-1, 1);
-
-            clock.restart();
+            movement();
+            animate();
         }
-        movement();
-        animate();
     }
+
 
     void movement() {
         position = sprite.getPosition();
@@ -131,7 +139,7 @@ public:
 
             // Deciding state
 
-            if (!isAnyKeyPressed())
+            if (!isAnyPlayerKeyPressed())
                 state = idle;
 
             if (playerVec.y != 0)
@@ -236,7 +244,7 @@ public:
 
     sf::Sprite *_sprite() { return &sprite; }
 
-    bool isAnyKeyPressed() {
+    bool isAnyPlayerKeyPressed() {
         for (int k = 0; k < 5; ++k) {
             if (sf::Keyboard::isKeyPressed(keyList[k]))
                 return true;
@@ -257,7 +265,7 @@ private:
     Player *player1, *player2;
     sf::RectangleShape activeRacket;
     int rally, crossFrame = 0;
-    float speed = .8f, rotate, height, factor = 1, distance = 0.f;
+    float rotate, height, factor = 1, distance = 0.f, speed = 2.f;
     Turn currentTurn, server = p1;
     State activePlayerState;
     IUmpire *umpire_;
@@ -342,17 +350,16 @@ public:
                 activePlayerState == State(swing)) {
                 start = sprite.getPosition();
                 momentum = start - anchor;
-//            momentum.x *= -1;
                 factor = 1;
                 bounces = 0;
-                speed = .8f;
                 if (momentum.x != 0.f or momentum.y != 0.f) {
                     float length = sqrt(pow(momentum.x, 2) + pow(momentum.y, 2));
                     momentum.x /= length;
                     momentum.y /= length;
                 }
-                end.x = start.x + momentum.x * 40.f;
-                end.y = net_y + momentum.y * 30.f;
+                while (currentTurn==Turn::p1?end.y < net_y + momentum.y * 30.f:end.y > net_y + momentum.y * 30.f) {
+                    end += momentum;
+                }
                 distanceVec = end - start;
                 cross.setPosition(end);
 
@@ -379,16 +386,16 @@ public:
                 if (bounces >= 2) { Notify(false); }
                 else if (!ballIn) { Notify(true); }
                 start = sprite.getPosition();
-                momentum *= .95f;
-                speed *= .9f;
-                factor *= .4;
-                end = start + (distanceVec * .5f);
-                distanceVec = end - start;
+                momentum *= .8f;
+                factor = .6;
+                distanceVec *= .5f;
+                end = sprite.getPosition() + distanceVec;
+
                 cross.setPosition(end);
-                height = ballHeight(sprite.getPosition() - start);
+//                height = ballHeight(sprite.getPosition() - start);
             }
             height *= factor;
-            sprite.setScale(.9f + height, .9f + height);
+            sprite.setScale(.9f + height * factor, .9f + height * factor);
             sprite.move(momentum * speed);
         }
     }
@@ -449,7 +456,7 @@ private:
     bool *_cutscene;
 public:
     bool game = false;
-    bool match = false;
+    Scene scene;
     Scores p1, p2;
     int diff = 0, gameDiff = 0;
     Turn gameWinner;
@@ -459,7 +466,7 @@ public:
         this->ball_.Attach(this);
         p1.score = 3;
         p1.games = 5;
-        p1.sets = 0;
+        p1.sets = 1;
         p2.score = 0;
         p2.games = 4;
         p2.sets = 0;
@@ -483,20 +490,15 @@ public:
         }
         if ((p1.score > 3) or (p2.score > 3)) {
             if (diff >= 2) {
+                scene = Scene::game;
                 if (p1.score > p2.score) { p1.games += 1; }
                 else { p2.games += 1; }
                 game = true;
-//                ball_.reset(true);
                 p1.score = 0;
                 p2.score = 0;
-            } else {
-                game = false;
-//                ball_.reset(false);
-            }
-        } else {
-//            ball_.reset(false);
-            game = false;
-        }
+            } else { game = false; }
+
+        } else { game = false; }
         // Check if set!
 
         gameDiff = (p2.games - p1.games);
@@ -511,12 +513,21 @@ public:
                     gameWinner = Turn::p2;
                 }
                 *_cutscene = true;
-//                p1.games = 0;
-//                p2.games = 0;
             }
+            scene = Scene::set;
         }
+
         if (!*_cutscene) { ball_.reset(game); }
 
+    }
+
+    void reset() {
+        p1.score = 0;
+        p1.games = 0;
+        p1.sets = 0;
+        p2.score = 0;
+        p2.games = 0;
+        p2.sets = 0;
     }
 };
 
@@ -543,6 +554,12 @@ public:
         set.setScale(0, 0);
         set.setOrigin(24, 8);
         set.setPosition(120, 120);
+
+        match.setTexture(*scoreTexture);
+        match.setTextureRect(sf::IntRect(1, 112, 78, 16));
+        match.setScale(0, 0);
+        match.setOrigin(39, 8);
+        match.setPosition(120, 120);
 
         p1Score.setTexture(*scoreTexture);
 
@@ -605,7 +622,6 @@ public:
             }
             p2Score.setPosition(127, 16);
         }
-
         int games_p1 = umpire_.p1.games;
         int games_p2 = umpire_.p2.games;
         int diffG = games_p2 - games_p1;
@@ -614,10 +630,6 @@ public:
                 case -2:
                     p1Games.setTextureRect(sf::IntRect(0, 60, 62, 10));
                     p2Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
-//                    TODO - ADD END SET ANIMATION TO BE RUN.
-//                      - AND ADD TIMER TO SLOWLY FLASH WHITE ON SCREEN
-//                    umpire_.p1.games = 0;
-//                    umpire_.p2.games = 0;
                     umpire_.p1.sets += 1;
                     break;
                 case -1:
@@ -635,10 +647,6 @@ public:
                 case 2:
                     p1Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
                     p2Games.setTextureRect(sf::IntRect(0, 60, 62, 10));
-//                    TODO - ADD END SET ANIMATION TO BE RUN.
-//                      - AND ADD TIMER TO SLOWLY FLASH WHITE ON SCREEN
-//                    umpire_.p1.games = 0;
-//                    umpire_.p2.games = 0;
                     umpire_.p2.sets += 1;
                     break;
             }
@@ -666,6 +674,7 @@ public:
         elements.push_back(p1Sets);
         elements.push_back(p2Sets);
         elements.push_back(set);
+        elements.push_back(match);
         elements.push_back(dash);
         return elements;
     }
@@ -690,39 +699,80 @@ public:
         }
     }
 
-    void cutScene(bool match, bool *__cutscene__) {
-        float progress = frame / 150;
-        if (nextFrame.getElapsedTime().asMilliseconds() > 3) {
-            if (frame < 150)
-                frame += 1;
-
-            set.setScale(easeOutBounce(progress) * 2, easeOutBounce(progress) * 2);
-            nextFrame.restart();
-        }
-        if (flicker.getElapsedTime().asSeconds() > .2) {
-            show = !show;
-            if (show) {
-                if (umpire_.gameWinner == Turn::p1) {
-                    p1Games.setTextureRect(sf::IntRect(0, 60, 70, 10));
-                } else {
-                    p2Games.setTextureRect(sf::IntRect(0, 60, 70, 10));
+    void cutScene(Scene scene, bool *__cutscene__) {
+        float progress = frame / 100;
+        if (scene == Scene::set) {
+            if (nextFrame.getElapsedTime().asSeconds() > 1 / 60) {
+                if (frame < 150)
+                    frame += 1;
+                if (progress < 1) { set.setScale(easeOutBounce(progress) * 3, easeOutBounce(progress) * 3); }
+                if (progress >= 1) {
+                    set.setScale((progress) * 3, (1 - (progress - 1) * 2) * 3);
                 }
-            } else {
-                if (umpire_.gameWinner == Turn::p1) {
-                    p1Games.setTextureRect(sf::IntRect(0, 0, 70, 10));
-                } else {
-                    p2Games.setTextureRect(sf::IntRect(0, 0, 70, 10));
-                }
+                nextFrame.restart();
             }
+            if (flicker.getElapsedTime().asSeconds() > .2) {
+                show = !show;
+                if (show) {
+                    if (umpire_.gameWinner == Turn::p1) {
+                        p1Games.setTextureRect(sf::IntRect(0, 60, 70, 10));
+                    } else {
+                        p2Games.setTextureRect(sf::IntRect(0, 60, 70, 10));
+                    }
+                } else {
+                    if (umpire_.gameWinner == Turn::p1) {
+                        p1Games.setTextureRect(sf::IntRect(0, 0, 70, 10));
+                    } else {
+                        p2Games.setTextureRect(sf::IntRect(0, 0, 70, 10));
+                    }
+                }
 
-            flicker.restart();
-        }
-        if (progress == 1) {
-            sf::sleep(sf::seconds(1));
-            *__cutscene__ = false;
-            set.setScale(0, 0);
-            umpire_.p1.games = 0;
-            umpire_.p2.games = 0;
+                flicker.restart();
+            }
+            if (progress == 1.5) {
+                if (umpire_.p1.sets == 2 or umpire_.p2.sets == 2) {
+                    umpire_.scene = Scene::match;
+                    frame = 0;
+                } else {
+                    sf::sleep(sf::seconds(1));
+                    *__cutscene__ = false;
+                }
+
+                set.setScale(0, 0);
+                umpire_.p1.games = 0;
+                umpire_.p2.games = 0;
+            }
+        } else if (scene == Scene::game) {
+        } else if (scene == Scene::match) {
+            if (nextFrame.getElapsedTime().asSeconds() > 1 / 60) {
+                if (frame < 150)
+                    frame += 1;
+
+                match.setScale(easeOutBounce(progress) * 2, easeOutBounce(progress) * 2);
+                nextFrame.restart();
+            }
+            if (flicker.getElapsedTime().asSeconds() > .2) {
+                show = !show;
+                if (show) {
+                    if (umpire_.gameWinner == Turn::p1) {
+                        p1Sets.setScale(1, 1);
+                    } else {
+                        p2Sets.setScale(1, 1);
+                    }
+                } else {
+                    if (umpire_.gameWinner == Turn::p1) {
+                        p1Sets.setScale(0, 0);
+                    } else {
+                        p2Sets.setScale(0, 0);
+                    }
+                }
+                flicker.restart();
+            }
+            if (progress == 1) {
+                sf::sleep(sf::seconds(1));
+                *__cutscene__ = false;
+                match.setScale(0, 0);
+            }
         }
     }
 
@@ -761,51 +811,25 @@ sf::View getLetterboxView(sf::View view, int windowWidth, int windowHeight) {
     return view;
 }
 
-struct RenderItems {
-    sf::RenderWindow *window;
-    UI *ui;
-    Player *p1;
-    Player *p2;
-    sf::Sprite *court;
-    sf::Sprite *net;
-    Ball *ball;
-};
 
-void renderingThread(RenderItems tempy) {
-//    std::vector<sf::Sprite> uiElements = ui->getElements();
-//    iterator
-    sf::RenderWindow *_window = tempy.window;
-    UI *_ui = tempy.ui;
-    Player *_p1 = tempy.p1;
-    Player *_p2 = tempy.p2;
-    sf::Sprite *_net = tempy.net;
-    sf::Sprite *_court = tempy.court;
-    Ball *_ball = tempy.ball;
-    while (_window->isOpen()) {
-
-        _window->clear();
-        _window->draw(*_court);
-        _window->draw(*_p1->_sprite());
-        _window->draw(*_net);
-        _window->draw(*_p2->_sprite());
-        _window->draw(*_ball->_sprite());
-
-        for (auto element: _ui->getElements()) {
-            _window->draw(element);
-        }
-        _window->display();
-
+bool isAnyKeyPressed() {
+    for (int k = -1; k < sf::Keyboard::KeyCount; ++k) {
+        if (sf::Keyboard::isKeyPressed(static_cast<sf::Keyboard::Key>(k)))
+            return true;
     }
+    return false;
 }
 
+
 bool cutscene = false;
+bool active = false;
 
 int main() {
-    sf::Texture courtTexture, ballTexture, playerTexture, netTexture, crossTexture, scoreTexture, setsTexture, gamesTexture, boardTexture;
-    sf::Sprite courtSprite, netSprite, endText;
+    sf::Texture courtTexture, ballTexture, playerTexture, netTexture, crossTexture, scoreTexture, setsTexture, gamesTexture, boardTexture, titleTexture, subTitleTexture;
+    sf::Sprite courtSprite, netSprite, title, subTitle;
     sf::Clock clock, clock2;
     sf::Vector2f ballMomentum(0.f, 0.f);
-
+    bool game;
     std::map<std::string, sf::Keyboard::Key> p1Keys;
     p1Keys["up"] = sf::Keyboard::W;
     p1Keys["down"] = sf::Keyboard::S;
@@ -829,12 +853,20 @@ int main() {
         !setsTexture.loadFromFile("src/assets/sets.png") or
         !gamesTexture.loadFromFile("src/assets/games.png") or
         !boardTexture.loadFromFile("src/assets/board.png") or
-        !crossTexture.loadFromFile("src/assets/cross.png")
+        !crossTexture.loadFromFile("src/assets/cross.png") or
+        !titleTexture.loadFromFile("src/assets/TCTitle.png") or
+        !subTitleTexture.loadFromFile("src/assets/pressToStart.png")
             ) {
         return -1;
     }
-    endText.setTexture(scoreTexture);
-    endText.setTextureRect(sf::IntRect(0, 112, 0, 0));
+    sf::Clock subTitleFlicker;
+    subTitle.setTexture(subTitleTexture);
+    subTitle.setPosition(61, 129);
+
+    title.setTexture(titleTexture);
+    title.setPosition(25, 43);
+    sf::RectangleShape mainBG(sf::Vector2f(240, 240));
+    mainBG.setFillColor(sf::Color(255, 255, 255, 180));
 
     courtTexture.setSmooth(false);
     playerTexture.setSmooth(false);
@@ -845,11 +877,11 @@ int main() {
 
     courtSprite.setTexture(courtTexture);
     // Player 1 set up
-    Player player1 = Player(p1, &playerTexture, p1Keys);
+    Player player1 = Player(p1, &playerTexture, p1Keys, &active);
     player1.setPosition(sf::Vector2f(70.0f, 50.0f));
 
     // Player 2 set up
-    Player player2 = Player(p2, &playerTexture, p2Keys);
+    Player player2 = Player(p2, &playerTexture, p2Keys, &active);
     player2.setPosition(sf::Vector2f(155.0f, 170.0f));
 
     // Ball set up
@@ -863,10 +895,6 @@ int main() {
     UI ui(*umpire, &scoreTexture, &setsTexture, &gamesTexture, &boardTexture, cutscene);
 
 
-    sf::Vertex line[] = {
-            sf::Vertex{sf::Vector2f(netSprite.getPosition().x - 130, netSprite.getPosition().y)},
-            sf::Vertex{sf::Vector2f(netSprite.getPosition().x + 230, netSprite.getPosition().y)}
-    };
     window.setFramerateLimit(60);
     turn = p1;
     float netY = netSprite.getPosition().y;
@@ -877,18 +905,6 @@ int main() {
     view.setCenter(view.getSize().x / 2, view.getSize().y / 2);
     view = getLetterboxView(view, 240, 240);
 
-    RenderItems renderItems;
-    renderItems.window = &window;
-    renderItems.ui = &ui;
-    renderItems.p1 = &player1;
-    renderItems.p2 = &player2;
-    renderItems.court = &courtSprite;
-    renderItems.net = &netSprite;
-    renderItems.ball = &baliBallerson;
-
-    sf::Thread renderer(&renderingThread, renderItems);
-
-//    renderer.launch(); // start the thread (internally calls task.run())
     while (window.isOpen()) {
 
         while (window.pollEvent(event)) {
@@ -901,20 +917,26 @@ int main() {
             }
         }
 
-
         window.clear();
-        if (cutscene) {
-            ui.cutScene(umpire->match, &cutscene);
-            if (!cutscene)
-                baliBallerson.reset(umpire->game);
+        if (active) {
+            if (cutscene) {
+                ui.cutScene(umpire->scene, &cutscene);
+                if (!cutscene) {
+                    baliBallerson.reset(umpire->game);
+                    if (umpire->scene == Scene::match) {
+                        active = false;
+                        umpire->reset();
+                    }
+                }
 //            cutscene = false;
-        } else {
-            baliBallerson.update(netY);
-            player1.update(baliBallerson.getPosition());
-            player2.update(baliBallerson.getPosition());
-            ui.update();
-        }
+            } else {
+                baliBallerson.update(netY);
+                player1.update(baliBallerson.getPosition());
+                player2.update(baliBallerson.getPosition());
+                ui.update();
+            }
 
+        }
 
         window.draw(courtSprite);
         window.draw(baliBallerson.bounds());
@@ -923,10 +945,20 @@ int main() {
         window.draw(netSprite);
         window.draw(*player2._sprite());
         window.draw(*baliBallerson._sprite());
-        window.draw(line, 2, sf::Lines);
-
         for (auto element: ui.getElements()) {
             window.draw(element);
+        }
+
+        if (!active) {
+            window.draw(mainBG);
+            window.draw(title);
+            if (subTitleFlicker.getElapsedTime().asSeconds() > .5) {
+                if (subTitle.getScale().x == 0) { subTitle.setScale(1, 1); }
+                else { subTitle.setScale(0, 0); }
+                subTitleFlicker.restart();
+            }
+            window.draw(subTitle);
+            if (isAnyKeyPressed()) { active = true; }
         }
 
         window.display();
