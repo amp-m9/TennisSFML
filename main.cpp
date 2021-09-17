@@ -58,6 +58,8 @@ private:
     Turn turn;
 
 public:
+    bool locked = true;
+
     Player(Turn _turn, sf::Texture *texture, std::map<std::string, sf::Keyboard::Key> keyDict, bool *active) {
         // movement will be 0->3 with 0 being up and going in a clockwise motion.
         // swing will be 4!
@@ -105,7 +107,7 @@ public:
             if (pressed(swingKey) && state != swing) {
                 state = swing;
                 frame = 0;
-
+                if (locked) { locked = false; }
                 switch (turn) {
                     case p1:
                         if (ballPos.x > racket.getPosition().x)
@@ -122,8 +124,11 @@ public:
 
                 clock.restart();
             }
-            movement();
-            animate();
+            if (!locked) {
+                movement();
+                animate();
+            }
+
         }
     }
 
@@ -148,7 +153,7 @@ public:
 
             // Deciding state
 
-            if (!isAnyPlayerKeyPressed())
+            if (playerVec == sf::Vector2f(0.f, 0.f))
                 state = idle;
 
             if (playerVec.y != 0)
@@ -274,7 +279,7 @@ private:
     Turn currentTurn, server = p1;
     State activePlayerState;
     IUmpire *umpire_;
-    sf::ConvexShape court, p1ServiceBox, p2ServiceBox;
+    sf::ConvexShape court;
 
 public:
     int bounces = 0;
@@ -305,16 +310,7 @@ public:
         for (int i = 0; i < 4; ++i) {
             court.setPoint(i, points[i]);
         }
-        p2ServiceBox.setPointCount(4);
-        sf::Vector2f points2[] = {
-                sf::Vector2f(120, 125),
-                sf::Vector2f(174, 125),
-                sf::Vector2f(178, 159),
-                sf::Vector2f(120, 159)
-        };
-        for (int i = 0; i < 4; ++i) {
-            p2ServiceBox.setPoint(i, points2[i]);
-        }
+
         court.setFillColor(sf::Color(100, 50, 255, 100));
         court.setOutlineColor(sf::Color(255, 0, 0, 255));
     }
@@ -359,7 +355,6 @@ public:
                     anchor.y += 15.f;
                     activePlayerState = player2->getState();
                     break;
-
             }
             if (sprite.getGlobalBounds().intersects(activeRacket.getGlobalBounds()) &&
                 activePlayerState == State(swing)) {
@@ -380,10 +375,15 @@ public:
                     momentum.x /= length;
                     momentum.y /= length;
                 }
-                end = sf::Vector2f(0, 0);
+                end = start;
 
-                end.x = start.x + momentum.x * 40.f;
-                end.y = net_y + momentum.y * 30.f;
+//                end.x = start.x + momentum.x * 40.f;
+                if (currentTurn==p1){
+                    while (end.y<net_y+20.f){end+=momentum;}
+                } else{
+                    while (end.y>net_y-20.f){end+=momentum;}
+                }
+//                end.y = net_y + momentum.y * 30.f;
                 distanceVec = end - start;
                 cross.setPosition(end);
 
@@ -392,12 +392,12 @@ public:
                 crossFrame = 0;
                 clock.restart();
                 currentTurn = (currentTurn == p1 ? p2 : p1);
+//                sf::sleep(sf::Time(sf::milliseconds(200)));
             }
 
             // Animate landing
             if (clock.getElapsedTime().asSeconds() > 0.2) {
-                ++crossFrame;
-                crossFrame %= 12;
+                if (crossFrame<11){crossFrame++;}
                 cross.setTextureRect(sf::IntRect(0, (crossFrame * 10), 10, 10));
             }
             sf::Vector2f travelled = sprite.getPosition() - start;
@@ -410,17 +410,19 @@ public:
                 if (serve) { serve = false; }
                 if (bounces >= 2) { Notify(false); }
                 else if (!ballIn) { Notify(true); }
-                start = sprite.getPosition();
-                momentum *= .5f;
+                momentum *= .8f;
                 factor = .6;
-                end = sprite.getPosition() + (distanceVec * .5f);
-                distanceVec *= .5f;
+                start = sprite.getPosition();
+                end = start + (distanceVec*.7f);
+                distanceVec = end - start;
                 cross.setPosition(end);
-                height = ballHeight(sprite.getPosition() - start);
+                distance = sqrt(pow(distanceVec.x, 2) + pow(distanceVec.y, 2));
+//                height = ballHeight(sprite.getPosition() - start);
             }
             height *= factor;
             sprite.setScale(.9f + height, .9f + height);
             sprite.move(momentum * speed);
+
         }
     }
 
@@ -441,8 +443,12 @@ public:
         player2->setPosition(sf::Vector2f(155.0f, 170.0f));
         if (game) { changeServe(); }
         if (server == p2) {
+            player1->locked = false;
+            player2->locked = true;
             this->setPosition(player2->getRacket().getPosition());
         } else if (server == p1) {
+            player1->locked = true;
+            player2->locked = false;
             this->setPosition(player1->getRacket().getPosition());
         }
         momentum = sf::Vector2f(0.f, 0.f);
@@ -657,8 +663,6 @@ public:
                 case -2:
                     p1Games.setTextureRect(sf::IntRect(0, 60, 62, 10));
                     p2Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
-//                    umpire_.p1.games = 0;
-//                    umpire_.p2.games = 0;
                     umpire_.p1.sets += 1;
                     break;
                 case -1:
@@ -676,8 +680,6 @@ public:
                 case 2:
                     p1Games.setTextureRect(sf::IntRect(0, 40, 62, 10));
                     p2Games.setTextureRect(sf::IntRect(0, 60, 62, 10));
-//                    umpire_.p1.games = 0;
-//                    umpire_.p2.games = 0;
                     umpire_.p2.sets += 1;
                     break;
             }
@@ -799,6 +801,8 @@ public:
                 sf::sleep(sf::seconds(1));
                 *__cutscene__ = false;
                 match.setScale(0, 0);
+                p1Sets.setScale(1, 1);
+                p2Sets.setScale(1, 1);
             }
         }
     }
