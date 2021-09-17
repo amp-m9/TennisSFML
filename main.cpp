@@ -1,5 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
+#include <windows.h>
 #include <iostream>
 #include <cmath>
 
@@ -938,6 +939,7 @@ int main() {
     view.setCenter(view.getSize().x / 2, view.getSize().y / 2);
     view = getLetterboxView(view, 240, 240);
     baliBallerson.reset(false);
+
     while (window.isOpen()) {
 
         while (window.pollEvent(event)) {
