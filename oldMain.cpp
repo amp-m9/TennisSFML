@@ -381,9 +381,11 @@ public:
                     momentum.y /= length;
                 }
                 end = sf::Vector2f(0, 0);
+                int difference = 0;
 
-                end.x = start.x + momentum.x * 40.f;
-                end.y = net_y + momentum.y * 30.f;
+                while (difference!=10) {
+                    end += momentum;
+                }
                 distanceVec = end - start;
                 cross.setPosition(end);
 
@@ -987,7 +989,7 @@ int main() {
                 subTitleFlicker.restart();
             }
             window.draw(subTitle);
-            if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) { active = true; }
+            if (isAnyKeyPressed()) { active = true; }
         }
 
         window.display();
