@@ -16,12 +16,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2b533433-5560-4f61-bb94-774697be07b6" name="Changes" comment="">
+    <list default="true" id="2b533433-5560-4f61-bb94-774697be07b6" name="Changes" comment="Game complete, fixed cross not lining up with the landing points!">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.exe" beforeDir="false" afterPath="$PROJECT_DIR$/main.exe" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/assets/pressToStart.png" beforeDir="false" afterPath="$PROJECT_DIR$/src/assets/pressToStart.png" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -142,8 +138,16 @@
       <workItem from="1631566310048" duration="11953000" />
       <workItem from="1631618621161" duration="32064000" />
       <workItem from="1631795736533" duration="28933000" />
-      <workItem from="1631900514167" duration="4644000" />
+      <workItem from="1631900514167" duration="5997000" />
     </task>
+    <task id="LOCAL-00001" summary="Game complete, fixed cross not lining up with the landing points!">
+      <created>1631915673874</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1631915673874</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -160,5 +164,9 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Game complete, fixed cross not lining up with the landing points!" />
+    <option name="LAST_COMMIT_MESSAGE" value="Game complete, fixed cross not lining up with the landing points!" />
   </component>
 </project>
