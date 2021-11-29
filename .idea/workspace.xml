@@ -16,7 +16,20 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2b533433-5560-4f61-bb94-774697be07b6" name="Changes" comment="update main.exe" />
+    <list default="true" id="886e50bb-b6c0-4e4c-9dc6-cac3b2d98054" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/Player.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UI.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/UmpireAndBall.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/structsAndEnums.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_09_2021_00_27_[Changes]/libgcc_s_seh-1.dll" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_09_2021_00_27_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_18_09_2021_00_27__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.cpp" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.exe" beforeDir="false" afterPath="$PROJECT_DIR$/main.exe" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.o" beforeDir="false" afterPath="$PROJECT_DIR$/main.o" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -31,12 +44,6 @@
     </projectState>
   </component>
   <component name="Git.Settings">
-    <option name="PUSH_TAGS">
-      <GitPushTagMode>
-        <option name="argument" value="--tags" />
-        <option name="title" value="All" />
-      </GitPushTagMode>
-    </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="MakefileLocalSettings">
@@ -66,8 +73,7 @@
       </map>
     </option>
   </component>
-  <component name="ProjectId" id="1xllKagtWVU4YFwlTsC55DQykoQ" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectId" id="1ylG2Wb7NrlHtdYfM06RvLq1Mwi" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -84,15 +90,7 @@
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.selected.package.eslint" value="(autodetect)" />
     <property name="node.js.selected.package.tslint" value="(autodetect)" />
-    <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="MakefileSettings" />
-  </component>
-  <component name="RecentsManager">
-    <key name="CopyFile.RECENT_KEYS">
-      <recent name="C:\Users\andri\Desktop\C++ Games\TennisChumpsPracticeGame" />
-      <recent name="C:\Users\andri\Desktop\C++ Games\TennisChumpsPracticeGame\dlls" />
-      <recent name="C:\Users\andri\Desktop\C++ Games\TennisChumpsPracticeGame\src\assets" />
-    </key>
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager" selected="Makefile Application.all">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true">
@@ -100,7 +98,7 @@
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="TennisChumpsPracticeGame" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="main.exe">
+    <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="TennisChumpsPracticeGame" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="$PROJECT_DIR$/main.exe">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
@@ -129,65 +127,21 @@
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="2b533433-5560-4f61-bb94-774697be07b6" name="Changes" comment="" />
-      <created>1630937500530</created>
+      <changelist id="886e50bb-b6c0-4e4c-9dc6-cac3b2d98054" name="Changes" comment="" />
+      <created>1632818555781</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
-      <updated>1630937500530</updated>
-      <workItem from="1630937508703" duration="512000" />
-      <workItem from="1630957565089" duration="651000" />
-      <workItem from="1631018368522" duration="547000" />
-      <workItem from="1631193120990" duration="7808000" />
-      <workItem from="1631348394723" duration="32073000" />
-      <workItem from="1631560700578" duration="4885000" />
-      <workItem from="1631566310048" duration="11953000" />
-      <workItem from="1631618621161" duration="32064000" />
-      <workItem from="1631795736533" duration="28933000" />
-      <workItem from="1631900514167" duration="9416000" />
+      <updated>1632818555781</updated>
+      <workItem from="1632818567720" duration="6858000" />
+      <workItem from="1632859894636" duration="3869000" />
+      <workItem from="1632902291588" duration="9122000" />
+      <workItem from="1635330168048" duration="2552000" />
+      <workItem from="1635614086546" duration="19000" />
+      <workItem from="1636366643069" duration="1365000" />
+      <workItem from="1636720161468" duration="423000" />
+      <workItem from="1636926784087" duration="709000" />
+      <workItem from="1638214084987" duration="5225000" />
     </task>
-    <task id="LOCAL-00001" summary="Game complete, fixed cross not lining up with the landing points!">
-      <created>1631915673874</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1631915673874</updated>
-    </task>
-    <task id="LOCAL-00002" summary="update main.exe">
-      <created>1631917279393</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1631917279393</updated>
-    </task>
-    <task id="LOCAL-00003" summary="update main.exe">
-      <created>1631917739519</created>
-      <option name="number" value="00003" />
-      <option name="presentableId" value="LOCAL-00003" />
-      <option name="project" value="LOCAL" />
-      <updated>1631917739519</updated>
-    </task>
-    <task id="LOCAL-00004" summary="update main.exe">
-      <created>1631920823519</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1631920823519</updated>
-    </task>
-    <task id="LOCAL-00005" summary="update main.exe">
-      <created>1631920863450</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1631920863450</updated>
-    </task>
-    <task id="LOCAL-00006" summary="update main.exe">
-      <created>1631920878049</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1631920878049</updated>
-    </task>
-    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -204,10 +158,5 @@
       </map>
     </option>
     <option name="oldMeFiltersMigrated" value="true" />
-  </component>
-  <component name="VcsManagerConfiguration">
-    <MESSAGE value="Game complete, fixed cross not lining up with the landing points!" />
-    <MESSAGE value="update main.exe" />
-    <option name="LAST_COMMIT_MESSAGE" value="update main.exe" />
   </component>
 </project>
